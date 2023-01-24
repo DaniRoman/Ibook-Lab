@@ -3,12 +3,15 @@ package com.example.nttdatalab.services;
 
 import com.example.nttdatalab.dto.BookDto;
 import com.example.nttdatalab.dto.BookDtoRequest;
+import com.example.nttdatalab.dto.BookRegistryDto;
 import com.example.nttdatalab.exceptions.advises.BookNotFoundException;
 import com.example.nttdatalab.exceptions.advises.BookTitleNotFoundException;
 import com.example.nttdatalab.models.Book;
 import com.example.nttdatalab.repositories.BookRepository;
 import com.example.nttdatalab.services.impServices.IBookService;
+import com.example.nttdatalab.utils.CustomLogger;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +22,10 @@ import java.util.List;
 public class BookServices implements IBookService {
 
     private final BookRepository bookRepository;
+    /*
+    @Autowired
+    private CustomLogger customLogger;*/
+
 
     public BookDto saveBook(BookDto bookDto){
 
@@ -28,12 +35,15 @@ public class BookServices implements IBookService {
 
         BookDto bookDtoResponse = new BookDto(book);
 
+        //BookRegistryDto bookRegistryDto = customLogger.info("Book " + bookDto.getTitle() + "has been created");
+        //sentLogService.publish(bookRegistryDto);
+
         return bookDtoResponse;
 
     }
     public List<BookDto> findAll(){
 
-        List<Book>  bookList = bookRepository.findAll();
+        List<Book> bookList = bookRepository.findAll();
         List<BookDto> bookDtoList = new ArrayList<BookDto>();
         bookList.stream().forEach(book -> bookDtoList.add(new BookDto(book)));
         return bookDtoList;

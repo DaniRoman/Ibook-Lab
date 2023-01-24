@@ -1,14 +1,18 @@
 package com.example.nttdatalab.controllers;
 
+import com.example.nttdatalab.dto.BookRegistryDto;
 import com.example.nttdatalab.dto.EditorialDto;
 import com.example.nttdatalab.services.impServices.IEditoralService;
 import com.example.nttdatalab.utils.CustomLogger;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
+@Data
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/editorials")
@@ -25,6 +30,8 @@ public class EditorialController {
     private final IEditoralService editoralService;
     @Autowired
     CustomLogger customLogger;
+
+    private final KafkaTemplate<String, BookRegistryDto> kafkaTemplate;
 
 
     @PostMapping(value = "/save", produces = { "application/hal+json" })
@@ -35,9 +42,12 @@ public class EditorialController {
         Link selfLink = linkTo(methodOn(EditorialController.class).readEditorialById(editorial.getId())).withSelfRel();
         editorial.add(selfLink);
 
-        log.info(customLogger.info("Editorial " + editorialDto.getName() + "has been created" ));
+        //log.info(customLogger.info("Editorial " + editorialDto.getName() + "has been created" ));
+
+
         return editorial;
     };
+
 
     @GetMapping
     public CollectionModel<EditorialDto> readEditorials(){
@@ -52,7 +62,7 @@ public class EditorialController {
         Link link = linkTo(methodOn(EditorialController.class).readEditorials()).withSelfRel();
         CollectionModel<EditorialDto> result = CollectionModel.of(editorialDtosList, link);
 
-        log.info(customLogger.info("All Editorials has been showed"));
+        //log.info(customLogger.info("All Editorials has been showed"));
         return result;
     };
 
@@ -64,7 +74,7 @@ public class EditorialController {
         Link selfLink = linkTo(EditorialController.class).slash(editorialDto.getId()).withSelfRel();
         editorialDto.add(selfLink);
 
-        log.info(customLogger.info("Editorial" + editorialDto.getName() + " with id " + editorialDto.getId() + " search by id has been done" ));
+        //log.info(customLogger.info("Editorial" + editorialDto.getName() + " with id " + editorialDto.getId() + " search by id has been done" ));
 
         return editorialDto;
     };
@@ -76,7 +86,7 @@ public class EditorialController {
         Link selLink = linkTo(EditorialController.class).slash(editorialDto.getName()).withSelfRel();
         editorialDto.add(selLink);
 
-        log.info(customLogger.info("Editorial" + editorialDto.getName() +" search by name has been done" ));
+        //log.info(customLogger.info("Editorial" + editorialDto.getName() +" search by name has been done" ));
         return editorialDto;
     };
 
@@ -88,7 +98,7 @@ public class EditorialController {
         Link selLink = linkTo(methodOn(EditorialController.class).readEditorialById(editorialDto2.getId())).withSelfRel();
         editorialDto2.add(selLink);
 
-        log.info(customLogger.info("Book " + editorialDto2.getName() + "has been updated"));
+        //log.info(customLogger.info("Book " + editorialDto2.getName() + "has been updated"));
         return editorialDto2;
 
     };
@@ -98,7 +108,7 @@ public class EditorialController {
     public void deleteEditorial(@PathVariable("id") Long id){
 
         editoralService.deleteEditorial(id);
-        log.info(customLogger.info("Editorial with id " + id + "has been deleted"));
+        //log.info(customLogger.info("Editorial with id " + id + "has been deleted"));
 
     };
 

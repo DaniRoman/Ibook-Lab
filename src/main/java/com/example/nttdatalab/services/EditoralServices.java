@@ -3,6 +3,7 @@ package com.example.nttdatalab.services;
 
 import com.example.nttdatalab.dto.BookDto;
 import com.example.nttdatalab.dto.BookDtoRequest;
+import com.example.nttdatalab.dto.BookRegistryDto;
 import com.example.nttdatalab.dto.EditorialDto;
 import com.example.nttdatalab.exceptions.advises.BookNotFoundException;
 import com.example.nttdatalab.exceptions.advises.BookTitleNotFoundException;
@@ -14,7 +15,12 @@ import com.example.nttdatalab.repositories.BookRepository;
 import com.example.nttdatalab.repositories.EditorialRepository;
 import com.example.nttdatalab.services.impServices.IBookService;
 import com.example.nttdatalab.services.impServices.IEditoralService;
+import com.example.nttdatalab.utils.CustomLogger;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +31,12 @@ import java.util.List;
 public class EditoralServices implements IEditoralService {
 
     private final EditorialRepository editorialRepository;
+    @Autowired
+    CustomLogger customLogger;
+
+    private final KafkaTemplate<String, BookRegistryDto> kafkaTemplate;
+    @Value("${kafka.topic.name}")
+    private String topicRegistry;
 
 
     @Override
@@ -50,13 +62,17 @@ public class EditoralServices implements IEditoralService {
     }
 
     @Override
-    public EditorialDto saveEditorial(EditorialDto EditorialDto) {
+    public EditorialDto saveEditorial(EditorialDto editorialDto) {
 
-        Editorial editorial = new Editorial(EditorialDto);
+        Editorial editorial = new Editorial(editorialDto);
 
         Editorial editorialDb = editorialRepository.save(editorial);
 
         EditorialDto editorialDtoResponse = new EditorialDto(editorialDb);
+
+        BookRegistryDto bookRegistryDto = customLogger.info("Editorial " + editorialDto.getName() + "has been created" );
+        kafkaTemplate.send(topicRegistry, bookRegistryDto);
+
         return editorialDtoResponse;
     }
 

@@ -25,7 +25,7 @@ public class BookRegistryService implements IBookRegistryService {
     public BookRegistryDto save(BookRegistryDto bookRegistryDto) {
 
         BookRegistry bookRegistry = new BookRegistry(bookRegistryDto);
-        bookRegistryRepository.save(bookRegistry);
+        mongoTemplate.insert(bookRegistry);
         return null;
     }
     @Override
@@ -33,4 +33,6 @@ public class BookRegistryService implements IBookRegistryService {
         List<BookRegistryDto> result = mongoTemplate.findAll(BookRegistryDto.class, "bookRegistry");
         return result;
     }
+
+    public void createCustomBookRegisyry(){}
 }

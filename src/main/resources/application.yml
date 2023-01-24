@@ -1,8 +1,14 @@
 server:
   servlet:
     context-path: /bookstore
+kafka:
+  boostrap-servers: localhost:29092
+  topic:
+    name: registry
 spring:
   mongodb:
     embedded:
       version: 4.0.21
+
+
 
